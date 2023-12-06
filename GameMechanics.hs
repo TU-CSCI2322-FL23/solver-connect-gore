@@ -95,13 +95,13 @@ opposite Red = Yellow
 opposite Yellow =  Red
 
 findWinner :: Game -> Maybe Winner
-findWinner (board, currentPlayer) 
-       | anyWin Red board = Just $ Win Red 
-       | anyWin Yellow board = Just $ Win Yellow
-       | null(allowedMoves (board,currentPlayer)) = Just $ Tie 
-       | otherwise = Nothing
- 
-    
+findWinner (board, currentPlayer)
+    | null board = Nothing
+    | anyWin Red board = Just $ Win Red
+    | anyWin Yellow board = Just $ Win Yellow
+    | null (allowedMoves (board, currentPlayer)) = Just Tie
+    | otherwise = Nothing
+
 anyWin currentPlayer board = 
            verticalWinBoard currentPlayer board
         || winAcross currentPlayer board
@@ -122,12 +122,14 @@ makeNewBoard board move color =
 
 -- Given a Game and a Move, creates a new Game with the result of the given Move. Will return a new Game or if the Move is not valid; will return Nothing.
 updateBoard :: Game -> Move -> Maybe Game
-updateBoard game move =
-    if move `elem` (allowedMoves game)
-    then let (board, color) = game
-             newBoard = makeNewBoard board move color
-         in Just (newBoard, swapColor color)
-    else Nothing
+updateBoard game move
+    | move < 0 || move > 6 = Nothing
+    | length (fst game) /= 6 = Nothing
+    | move `elem` allowedMoves game = Just (newBoard, swapColor color)
+    | otherwise = Nothing
+  where
+    (board, color) = game
+    newBoard = makeNewBoard board move color
 
 -- Creates a list of possible moves, returns a list of the legal moves
 allowedMoves :: Game -> [Move]
